@@ -1,0 +1,4 @@
+# Kaggle already supplies PyTorch and torchvision; these are the external additions.
+flwr[simulation]==1.20.0
+medmnist==3.0.2
+matplotlib>=3.7,<4
