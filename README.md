@@ -2,7 +2,7 @@
 
 > Reproducible federated-learning benchmark on [PathMNIST](https://medmnist.com/) (size 28, nine-class patch-pathology classification). Compares FedAvg, FedProx, FedNova, and ServerMomentum across five seeded non-IID virtual hospitals under controlled Dirichlet partitioning.
 
-**Status: local implementation and offline contract tests complete. Real-data benchmark results (centralized gate, federated metrics, reproducibility across three seeds) are pending an authenticated Kaggle run. No performance claims are made.**
+**Kaggle kernel:** [`ajinkya1225/05-fedscope`](https://www.kaggle.com/code/ajinkya1225/05-fedscope) — smoke run PASSED (2026-09-04, exit_code=0). Full 3-seed benchmark (v15, 30 epochs CPU) running; results table will be added on completion.
 
 ---
 
@@ -46,7 +46,8 @@ fedscope-public/
 │   └── artifacts.py           # schema-validated artifact loader for the dashboard
 ├── study/
 │   ├── 01_baseline.py         # centralized gate evaluation and persistence
-│   └── 02_federated.py        # federated run guard (requires persisted passing gate)
+│   ├── 02_federated.py        # federated run guard (requires persisted passing gate)
+│   └── 03_analysis.py         # offline analysis: load artifacts, print mean±std table, write benchmark_summary.json
 ├── tests/                     # offline contract tests — no PathMNIST required
 ├── kaggle/
 │   ├── run_fedscope.py        # bounded Flower runner (smoke + approved-seeds modes)
@@ -85,7 +86,7 @@ The offline suite verifies all strategy contracts, the centralized gate, the das
 | **FedNova** | τ-normalised weighted updates | w_new = w_global + τ_eff × Σᵢ pᵢ (wᵢ − w_global) / τᵢ |
 | **ServerMomentum** | EMA of client-averaged weights | Server-side exponential moving average; **not SCAFFOLD** (no per-client control variates) |
 
-**No performance ranking is claimed.** All metrics are pending a completed Kaggle run.
+**No performance ranking is claimed until Kaggle v15 completes.** Results table will be published here (mean ± std across seeds 42/123/456, macro F1 after 3 federated rounds).
 
 ---
 
@@ -127,23 +128,24 @@ See `notebooks/KAGGLE_RUNBOOK_fedscope.md` for the full cell-by-cell protocol.
 
 | Component | Status |
 |-----------|--------|
-| Offline contract tests (57 functions) | **Verified locally** — all pass |
-| PathMNIST data loading | Not yet — requires Kaggle session |
-| Centralized macro F1 gate (≥ 0.70) | Not yet — requires Kaggle session |
-| Federated training (FedAvg / FedProx / FedNova / ServerMomentum) | Not yet — requires Kaggle session |
-| Three-seed reproducibility (42, 123, 456) | Not yet — requires Kaggle session |
-| GPU execution | Not yet — requires Kaggle GPU quota |
-| Dashboard rendering | Not yet — requires benchmark artifacts |
+| Offline contract tests (57 functions) | **Verified** — all pass (2026-09-03) |
+| PathMNIST download + preflight | **Verified on Kaggle** — v13 (2026-09-04) |
+| Smoke run (1 round, seed 42) | **PASSED** — exit_code=0 (2026-09-04) |
+| Centralized macro F1 gate (≥ 0.70) | **Pending v15** — 30-epoch CPU run in progress |
+| Federated training (FedAvg / FedProx / FedNova / ServerMomentum) | **Pending v15** — gated on centralized pass |
+| Three-seed reproducibility (42, 123, 456) | **Pending v15** — full approved-seeds run in progress |
+| GPU execution | CPU-only (Kaggle P100 sm_60 incompatible with PyTorch 2.10; T4/A100 unscheduled) |
+| Dashboard rendering | Pending benchmark artifacts from v15 |
 
 ---
 
 ## Limitations
 
-- No benchmark results, winners, or convergence claims exist. All metrics are pending a completed Kaggle run.
-- The centralized macro F1 gate threshold (≥ 0.70) is a prerequisite, not a guaranteed outcome.
+- Benchmark results are pending the v15 Kaggle run (30-epoch CPU centralized baseline + 3-seed federated). Results table will be added here on completion.
+- The centralized macro F1 gate threshold (≥ 0.70) is a prerequisite, not a guaranteed outcome. Prior 3-epoch runs produced near-random F1 (≈0.12 on 9-class); 30 epochs is expected to clear the gate.
 - PathMNIST is a small proxy task (28×28 RGB patches). Results on larger or real-world federated datasets may differ substantially.
-- `study/03_analysis.py` and a `results/` artifact tree are not yet present.
 - The Flower simulation uses Ray internally; behaviour under different Ray versions is not verified.
+- Execution is CPU-only due to Kaggle P100 GPU incompatibility with PyTorch 2.10.
 
 ---
 
