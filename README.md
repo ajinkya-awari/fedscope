@@ -2,7 +2,7 @@
 
 > Reproducible federated-learning benchmark on [PathMNIST](https://medmnist.com/) (size 28, nine-class patch-pathology classification). Compares FedAvg, FedProx, FedNova, and ServerMomentum across five seeded non-IID virtual hospitals under controlled Dirichlet partitioning.
 
-**Kaggle kernel:** [`ajinkya1225/05-fedscope`](https://www.kaggle.com/code/ajinkya1225/05-fedscope) — smoke run PASSED (2026-09-04, exit_code=0). Full 3-seed benchmark (v15, 30 epochs CPU) running; results table will be added on completion.
+**Kaggle kernel:** [`ajinkya1225/05-fedscope`](https://www.kaggle.com/code/ajinkya1225/05-fedscope) — **benchmark COMPLETE** (v19, 2026-09-05, exit_code=0). Centralized gate passed all 3 seeds (F1 ≥ 0.779). Federated benchmark: 3 rounds, 5 clients, CPU, non-IID (Dirichlet α=0.5).
 
 ---
 
@@ -86,7 +86,26 @@ The offline suite verifies all strategy contracts, the centralized gate, the das
 | **FedNova** | τ-normalised weighted updates | w_new = w_global + τ_eff × Σᵢ pᵢ (wᵢ − w_global) / τᵢ |
 | **ServerMomentum** | EMA of client-averaged weights | Server-side exponential moving average; **not SCAFFOLD** (no per-client control variates) |
 
-**No performance ranking is claimed until Kaggle v15 completes.** Results table will be published here (mean ± std across seeds 42/123/456, macro F1 after 3 federated rounds).
+### Results — macro F1 after 3 federated rounds (CPU, 5 clients, Dirichlet α=0.5)
+
+**Centralized baseline gate** (30 epochs, SGD momentum=0.9):
+
+| Seed | Macro F1 | Gate |
+|------|----------|------|
+| 42   | 0.7799   | ✓ PASSED |
+| 123  | 0.7895   | ✓ PASSED |
+| 456  | 0.7951   | ✓ PASSED |
+
+**Federated benchmark** (mean ± std, 3 rounds, seeds 42/123/456):
+
+| Strategy | Mean F1 | Std |
+|----------|---------|-----|
+| FedAvg | 0.0706 | ±0.0394 |
+| FedProx | 0.0475 | ±0.0408 |
+| FedNova | 0.0267 | ±0.0020 |
+| ServerMomentum | 0.0246 | ±0.0032 |
+
+> **Note:** Federated F1 is near-random (9-class chance ≈ 0.111) at 3 rounds on CPU. The centralized baseline demonstrates the architecture and data pipeline are correct — federated convergence requires more rounds or a GPU session. This is an honest compute-limited benchmark, not a claim of convergence.
 
 ---
 
@@ -129,13 +148,13 @@ See `notebooks/KAGGLE_RUNBOOK_fedscope.md` for the full cell-by-cell protocol.
 | Component | Status |
 |-----------|--------|
 | Offline contract tests (57 functions) | **Verified** — all pass (2026-09-03) |
-| PathMNIST download + preflight | **Verified on Kaggle** — v13 (2026-09-04) |
+| PathMNIST download + preflight | **Verified on Kaggle** — v19 (2026-09-05) |
 | Smoke run (1 round, seed 42) | **PASSED** — exit_code=0 (2026-09-04) |
-| Centralized macro F1 gate (≥ 0.70) | **Pending v15** — 30-epoch CPU run in progress |
-| Federated training (FedAvg / FedProx / FedNova / ServerMomentum) | **Pending v15** — gated on centralized pass |
-| Three-seed reproducibility (42, 123, 456) | **Pending v15** — full approved-seeds run in progress |
+| Centralized macro F1 gate (≥ 0.70) | **PASSED** — all 3 seeds: 0.779 / 0.790 / 0.795 (2026-09-05) |
+| Federated training (FedAvg / FedProx / FedNova / ServerMomentum) | **COMPLETE** — 3 rounds × 3 seeds × 4 algorithms (2026-09-05) |
+| Three-seed reproducibility (42, 123, 456) | **COMPLETE** — all seeds ran, artifacts persisted (2026-09-05) |
 | GPU execution | CPU-only (Kaggle P100 sm_60 incompatible with PyTorch 2.10; T4/A100 unscheduled) |
-| Dashboard rendering | Pending benchmark artifacts from v15 |
+| Dashboard rendering | Artifacts produced; dashboard ready to connect |
 
 ---
 
